@@ -1,0 +1,23 @@
+{
+  "name": "NACAB — Estudo de Anomalias",
+  "short_name": "NACAB Campo",
+  "description": "Instrumento de campo — Rio Paraopeba",
+  "start_url": "https://hugoh-sig.github.io/anomalias-estudo/index.html",
+  "scope": "https://hugoh-sig.github.io/anomalias-estudo/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f1923",
+  "theme_color": "#2ecc71",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
