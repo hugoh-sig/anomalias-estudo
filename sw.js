@@ -1,4 +1,4 @@
-const CACHE = 'nacab-v1';
+const CACHE = 'nacab-v2';
 const ASSETS = [
   './',
   './index.html',
