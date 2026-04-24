@@ -184,6 +184,14 @@
   </div>
   <div class="card">
     <h3>Nova anotação estratégica</h3>
+    <div style="margin-bottom:8px">
+      <div style="font-size:10px;color:#7f8c8d;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">Ponto de campo</div>
+      <input id="ponto-input" type="text"
+        style="width:100%;background:#0f1923;border:1px solid #2ecc71;border-radius:8px;
+               color:#e8edf2;padding:8px 10px;font-size:13px;font-weight:600;"
+        placeholder="Ex: PT-01 Margem Rio, Propriedade Taquaras..."
+        oninput="salvarPonto(this.value)"/>
+    </div>
     <div id="cats">
       <button class="cat-btn sel" onclick="selCat(this,'Solo')">Solo</button>
       <button class="cat-btn" onclick="selCat(this,'Vegetação')">Vegetação</button>
@@ -272,10 +280,15 @@ async function iniciarDB() {
   await abrirDB();
   notas = await dbGetAll('notas');
   notas.sort((a,b) => b.id - a.id);
+  const cfgPonto = await dbGet('config', 'ponto');
+  if (cfgPonto) document.getElementById('ponto-input').value = cfgPonto.valor;
   const cfg = await dbGet('config', 'tecnico');
   if (cfg) { tecnico = cfg.valor; document.getElementById('tecnico-input').value = tecnico; }
   document.getElementById('db-status').textContent = `💾 banco ativo — ${notas.length} registro(s)`;
   renderNotas();
+}
+async function salvarPonto(valor) {
+  await dbPut('config', {chave:'ponto', valor});
 }
 async function salvarTecnico(valor) {
   tecnico = valor;
@@ -434,6 +447,7 @@ function renderNotas(){
   document.getElementById('lista-notas').innerHTML=notas.map(n=>`
     <div class="nota-card">
       <div class="nota-meta">${n.timestamp} · ${n.tecnico}</div>
+      <div style="font-size:12px;color:#2ecc71;font-weight:700;margin-bottom:4px">📌 ${n.ponto_campo||'ponto não informado'}</div>
       <span class="nota-cat">${n.categoria}</span>
       <div class="nota-txt">${n.texto}</div>
       ${n.lat?`<div class="nota-coords">📍 ${n.lat}, ${n.lon} · precisão ${n.precisao_m}m</div>`:''}
@@ -448,8 +462,8 @@ function baixarArquivo(conteudo,nome,tipo){const blob=new Blob(['﻿'+conteudo],
 function exportarNotasCSV(){
   const data=new Date().toISOString().slice(0,10);
   let csv=`# NACAB — Estudo de Anomalias\n# Técnico:,${escaparCSV(tecnico||'não informado')}\n# Data:,${new Date().toLocaleString('pt-BR')}\n# Total:,${notas.length}\n#\n`;
-  csv+=`id,tecnico,timestamp,categoria,texto,latitude,longitude,precisao_m,altitude_m,dist_fe,dist_argila,dist_fe_argila,dist_inundacao\n`;
-  notas.forEach(n=>{csv+=[n.id,escaparCSV(n.tecnico),escaparCSV(n.timestamp),escaparCSV(n.categoria),escaparCSV(n.texto),n.lat||'',n.lon||'',n.precisao_m||'',n.altitude_m||'',escaparCSV(n.dist_fe_m),escaparCSV(n.dist_argila_m),escaparCSV(n.dist_ambas_m),escaparCSV(n.dist_cheias_m)].join(',')+' \n';});
+  csv+=`id,ponto_campo,tecnico,timestamp,categoria,texto,latitude,longitude,precisao_m,altitude_m,dist_fe,dist_argila,dist_fe_argila,dist_inundacao\n`;
+  notas.forEach(n=>{csv+=[n.id,escaparCSV(n.ponto_campo),escaparCSV(n.tecnico),escaparCSV(n.timestamp),escaparCSV(n.categoria),escaparCSV(n.texto),n.lat||'',n.lon||'',n.precisao_m||'',n.altitude_m||'',escaparCSV(n.dist_fe_m),escaparCSV(n.dist_argila_m),escaparCSV(n.dist_ambas_m),escaparCSV(n.dist_cheias_m)].join(',')+' \n';});
   baixarArquivo(csv,`nacab_notas_${data}.csv`,'text/csv;charset=utf-8');
 }
 function exportarNotasJSON(){
